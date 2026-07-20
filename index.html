@@ -1615,6 +1615,10 @@ function speak(text) {
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'en-US';
     u.rate = 0.8;
+    // 强制选择英文语音
+    const voices = speechSynthesis.getVoices();
+    const enVoice = voices.find(v => v.lang === 'en-US' || v.lang === 'en_GB' || v.lang.startsWith('en'));
+    if (enVoice) u.voice = enVoice;
     speechSynthesis.cancel();
     speechSynthesis.speak(u);
   } else {
@@ -1624,6 +1628,18 @@ function speak(text) {
 
 
 
+// 预加载语音引擎
+if ('speechSynthesis' in window) {
+  speechSynthesis.getVoices();
+  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+}
+
+
+// 预加载语音引擎
+if ('speechSynthesis' in window) {
+  speechSynthesis.getVoices();
+  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+}
 // ============================================================
 // 学习页
 // ============================================================
