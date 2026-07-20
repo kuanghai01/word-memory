@@ -12,6 +12,10 @@
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
+  --green: #22c55e;
+  --red: #ef4444;
+  --orange: #f97316;
+  --bg-blue: #eef2ff;
   --bg: #f1f5f9;
   --card: #ffffff;
   --text: #1e293b;
@@ -378,6 +382,248 @@ body {
 @media (min-width: 768px) {
   .page { padding: 24px; }
 }
+/* ========== 测试页 ========== */
+.test-hero {
+  text-align: center;
+  padding: 30px 0 20px;
+}
+.test-hero-icon { font-size: 48px; }
+.test-hero h2 { color: var(--primary); margin: 8px 0 4px; font-size: 22px; }
+.test-hero p { color: var(--text-light); font-size: 14px; }
+.test-setup-grid {
+  display: grid;
+  gap: 16px;
+  padding: 0 16px;
+}
+.test-setup-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+.test-setup-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-light);
+  margin-bottom: 10px;
+}
+.test-count-options, .test-type-options {
+  display: flex;
+  gap: 8px;
+}
+.test-count-btn, .test-type-btn {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 8px;
+  border: 2px solid #e2e8f0;
+  background: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.test-count-btn.active, .test-type-btn.active {
+  border-color: var(--primary);
+  background: #eef2ff;
+  color: var(--primary);
+  font-weight: 600;
+}
+.test-start-btn {
+  display: block;
+  width: calc(100% - 32px);
+  margin: 24px auto;
+  padding: 14px 0;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.test-start-btn:hover { opacity: 0.9; }
+
+/* 测试中 */
+.test-top-bar {
+  padding: 12px 16px 0;
+}
+.test-progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: var(--text);
+}
+.test-timer { color: var(--primary); font-weight: 600; font-variant-numeric: tabular-nums; }
+.test-progress-bar {
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 3px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.test-progress-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+.test-quit-btn {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.test-question-card {
+  padding: 16px;
+}
+.test-q-type {
+  display: inline-block;
+  font-size: 12px;
+  background: var(--bg-blue);
+  color: var(--primary);
+  padding: 3px 10px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+.test-q-word {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 8px 0;
+}
+.test-speak-btn {
+  background: var(--bg-blue);
+  border: none;
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+.test-q-prompt {
+  font-size: 14px;
+  color: var(--text-light);
+  margin-bottom: 12px;
+}
+.test-options-grid {
+  display: grid;
+  gap: 10px;
+}
+.test-opt-btn {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  padding: 14px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.test-opt-btn:hover { border-color: var(--primary); background: #f8fafc; }
+.test-opt-btn.correct { border-color: var(--green); background: #f0fdf4; }
+.test-opt-btn.wrong { border-color: var(--red); background: #fef2f2; }
+.test-opt-btn:disabled { cursor: default; }
+.test-opt-letter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  font-size: 13px;
+  font-weight: 600;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+/* 测试结果 */
+.test-result-card {
+  text-align: center;
+  padding: 30px 16px;
+}
+.test-score-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 6px solid var(--primary);
+}
+.test-score-num { font-size: 40px; font-weight: 700; color: var(--primary); line-height: 1; }
+.test-score-unit { font-size: 14px; color: var(--text-light); }
+.test-result-stats {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+.test-result-val { font-size: 22px; font-weight: 700; }
+.test-result-label { font-size: 13px; color: var(--text-light); }
+.test-result-msg {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 16px 0;
+  padding: 10px;
+  background: var(--bg-blue);
+  border-radius: 8px;
+}
+.test-wrong-section {
+  padding: 0 16px;
+}
+.test-wrong-section h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+.test-wrong-item {
+  background: #fff;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+.test-wrong-word { font-weight: 600; margin-bottom: 4px; }
+.test-wrong-ans { font-size: 13px; color: var(--text-light); }
+.test-wrong-ans .red { color: var(--red); }
+.test-wrong-ans .green { color: var(--green); }
+.test-result-actions {
+  display: flex;
+  gap: 12px;
+  padding: 20px 16px;
+}
+.test-retry-btn {
+  flex: 1;
+  padding: 12px 0;
+  border: none;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.test-back-btn {
+  flex: 1;
+  padding: 12px 0;
+  border: 2px solid var(--primary);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--primary);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 </style>
 </head>
 <body>
@@ -394,6 +640,7 @@ body {
   <div class="tab" data-tab="review">复习</div>
   <div class="tab" data-tab="grammar">语法</div>
   <div class="tab" data-tab="words">词库</div>
+  <div class="tab" data-tab="test">小测试</div>
   <div class="tab" data-tab="stats">统计</div>
 </div>
 
@@ -2368,10 +2615,343 @@ document.querySelectorAll('.tab').forEach(tab => {
 });
 
 // ============================================================
+// 小测试
+// ============================================================
+let testState = {
+  questions: [],
+  currentIdx: 0,
+  correct: 0,
+  wrong: 0,
+  wrongList: [],
+  type: 0,
+  count: 10,
+  startTime: 0,
+  timerInterval: null,
+  answered: false
+};
+
+const TEST_TYPE_NAMES = ['看英选中', '看中选英', '听音选义'];
+
+// 设置按钮事件
+document.querySelectorAll('.test-count-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.test-count-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    testState.count = parseInt(btn.dataset.count);
+  });
+});
+
+document.querySelectorAll('.test-type-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.test-type-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    testState.type = parseInt(btn.dataset.type);
+  });
+});
+
+// 开始测试
+document.getElementById('testStartBtn').addEventListener('click', () => {
+  startTest();
+});
+
+// 退出测试
+document.getElementById('testQuitBtn').addEventListener('click', () => {
+  if (confirm('确定要退出测试吗？当前进度将丢失。')) {
+    showTestSetup();
+  }
+});
+
+// 再来一次
+document.getElementById('testRetryBtn').addEventListener('click', () => {
+  startTest();
+});
+
+// 返回
+document.getElementById('testBackBtn').addEventListener('click', () => {
+  showTestSetup();
+});
+
+// 朗读按钮
+document.getElementById('testSpeakBtn').addEventListener('click', () => {
+  const q = testState.questions[testState.currentIdx];
+  if (q) speak(q.word);
+});
+
+function showTestSetup() {
+  clearInterval(testState.timerInterval);
+  document.getElementById('testSetup').style.display = 'block';
+  document.getElementById('testArea').style.display = 'none';
+  document.getElementById('testResult').style.display = 'none';
+}
+
+function startTest() {
+  // 生成题目
+  const shuffled = shuffle([...WORDS]);
+  const questions = shuffled.slice(0, testState.count).map(w => generateQuestion(w));
+  
+  testState.questions = questions;
+  testState.currentIdx = 0;
+  testState.correct = 0;
+  testState.wrong = 0;
+  testState.wrongList = [];
+  testState.startTime = Date.now();
+  testState.answered = false;
+  
+  document.getElementById('testSetup').style.display = 'none';
+  document.getElementById('testArea').style.display = 'block';
+  document.getElementById('testResult').style.display = 'none';
+  
+  // 启动计时器
+  clearInterval(testState.timerInterval);
+  testState.timerInterval = setInterval(updateTestTimer, 1000);
+  
+  showTestQuestion();
+}
+
+function generateQuestion(w) {
+  const type = testState.type;
+  let correct, options, promptText, displayWord;
+  
+  if (type === 0) {
+    // 看英选中
+    displayWord = w.word;
+    promptText = '选出正确的中文释义：';
+    correct = w.pos + ' ' + w.meaning;
+    const wrongs = shuffle(WORDS.filter(x => x.word !== w.word)).slice(0, 3).map(x => x.pos + ' ' + x.meaning);
+    options = shuffle([correct, ...wrongs]);
+  } else if (type === 1) {
+    // 看中选英
+    displayWord = w.meaning;
+    promptText = '选出正确的英文单词：';
+    correct = w.word;
+    const wrongs = shuffle(WORDS.filter(x => x.word !== w.word)).slice(0, 3).map(x => x.word);
+    options = shuffle([correct, ...wrongs]);
+  } else {
+    // 听音选义
+    displayWord = '🔊 点击下方按钮听发音';
+    promptText = '选出正确的中文释义：';
+    correct = w.pos + ' ' + w.meaning;
+    const wrongs = shuffle(WORDS.filter(x => x.word !== w.word)).slice(0, 3).map(x => x.pos + ' ' + x.meaning);
+    options = shuffle([correct, ...wrongs]);
+  }
+  
+  return { word: w.word, displayWord, promptText, correct, options, wordData: w };
+}
+
+function showTestQuestion() {
+  const q = testState.questions[testState.currentIdx];
+  testState.answered = false;
+  
+  document.getElementById('testQType').textContent = TEST_TYPE_NAMES[testState.type];
+  document.getElementById('testQWord').textContent = q.displayWord;
+  document.getElementById('testQPrompt').textContent = q.promptText;
+  document.getElementById('testProgressNum').textContent = `${testState.currentIdx + 1}/${testState.questions.length}`;
+  document.getElementById('testProgressFill').style.width = ((testState.currentIdx) / testState.questions.length * 100) + '%';
+  
+  // 朗读按钮
+  const speakBtn = document.getElementById('testSpeakBtn');
+  if (testState.type === 2) {
+    speakBtn.style.display = 'inline-block';
+    // 自动朗读
+    setTimeout(() => speak(q.word), 300);
+  } else {
+    speakBtn.style.display = 'none';
+  }
+  
+  // 生成选项
+  const grid = document.getElementById('testOptionsGrid');
+  grid.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'test-opt-btn';
+    btn.innerHTML = `<span class="test-opt-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.addEventListener('click', () => handleTestAnswer(btn, opt, q));
+    grid.appendChild(btn);
+  });
+}
+
+function handleTestAnswer(btn, selected, q) {
+  if (testState.answered) return;
+  testState.answered = true;
+  
+  const buttons = document.querySelectorAll('.test-opt-btn');
+  buttons.forEach(b => b.disabled = true);
+  
+  if (selected === q.correct) {
+    btn.classList.add('correct');
+    testState.correct++;
+  } else {
+    btn.classList.add('wrong');
+    // 标记正确答案
+    buttons.forEach(b => {
+      if (b.textContent.includes(q.correct)) {
+        b.classList.add('correct');
+      }
+    });
+    testState.wrong++;
+    testState.wrongList.push({
+      word: q.word,
+      correct: q.correct,
+      selected: selected
+    });
+  }
+  
+  // 延迟进入下一题
+  setTimeout(() => {
+    testState.currentIdx++;
+    if (testState.currentIdx >= testState.questions.length) {
+      showTestResults();
+    } else {
+      showTestQuestion();
+    }
+  }, 800);
+}
+
+function updateTestTimer() {
+  const elapsed = Math.floor((Date.now() - testState.startTime) / 1000);
+  const min = String(Math.floor(elapsed / 60)).padStart(2, '0');
+  const sec = String(elapsed % 60).padStart(2, '0');
+  document.getElementById('testTimer').textContent = `${min}:${sec}`;
+}
+
+function showTestResults() {
+  clearInterval(testState.timerInterval);
+  
+  document.getElementById('testArea').style.display = 'none';
+  document.getElementById('testResult').style.display = 'block';
+  
+  const total = testState.questions.length;
+  const score = Math.round(testState.correct / total * 100);
+  const elapsed = Math.floor((Date.now() - testState.startTime) / 1000);
+  const min = String(Math.floor(elapsed / 60)).padStart(2, '0');
+  const sec = String(elapsed % 60).padStart(2, '0');
+  
+  document.getElementById('testScoreNum').textContent = score;
+  document.getElementById('testResultCorrect').textContent = testState.correct;
+  document.getElementById('testResultWrong').textContent = testState.wrong;
+  document.getElementById('testResultTime').textContent = `${min}:${sec}`;
+  
+  // 评价
+  let msg = '';
+  if (score >= 90) msg = '🎉 太棒了！词汇量很强！';
+  else if (score >= 75) msg = '👍 不错！继续巩固！';
+  else if (score >= 60) msg = '💪 及格了！还有提升空间！';
+  else if (score >= 40) msg = '📚 需要多复习哦！';
+  else msg = '🌱 加油，每天进步一点点！';
+  document.getElementById('testResultMsg').textContent = msg;
+  
+  // 分数圆环颜色
+  const circle = document.getElementById('testScoreCircle');
+  if (score >= 75) circle.style.borderColor = 'var(--green)';
+  else if (score >= 50) circle.style.borderColor = 'var(--orange)';
+  else circle.style.borderColor = 'var(--red)';
+  
+  // 错题回顾
+  const wrongSection = document.getElementById('testWrongSection');
+  const wrongList = document.getElementById('testWrongList');
+  if (testState.wrongList.length > 0) {
+    wrongSection.style.display = 'block';
+    wrongList.innerHTML = testState.wrongList.map(w => `
+      <div class="test-wrong-item">
+        <div class="test-wrong-word">${w.word}</div>
+        <div class="test-wrong-ans">你的答案：<span class="red">${w.selected}</span></div>
+        <div class="test-wrong-ans">正确答案：<span class="green">${w.correct}</span></div>
+      </div>
+    `).join('');
+  } else {
+    wrongSection.style.display = 'none';
+  }
+}
+
+// ============================================================
 // 初始化
 // ============================================================
 showWord(currentWordIdx);
 updateLearnStats();
 </script>
+<!-- ========== 测试页 ========== -->
+<div class="page" id="page-test">
+  <!-- 测试设置 -->
+  <div id="testSetup">
+    <div class="test-hero">
+      <div class="test-hero-icon">🎯</div>
+      <h2>小测试</h2>
+      <p>检验你的词汇掌握程度</p>
+    </div>
+    <div class="test-setup-grid">
+      <div class="test-setup-card">
+        <div class="test-setup-label">题目数量</div>
+        <div class="test-count-options">
+          <button class="test-count-btn active" data-count="10">10题</button>
+          <button class="test-count-btn" data-count="20">20题</button>
+          <button class="test-count-btn" data-count="50">50题</button>
+        </div>
+      </div>
+      <div class="test-setup-card">
+        <div class="test-setup-label">题型</div>
+        <div class="test-type-options">
+          <button class="test-type-btn active" data-type="0">看英选中</button>
+          <button class="test-type-btn" data-type="1">看中选英</button>
+          <button class="test-type-btn" data-type="2">听音选义</button>
+        </div>
+      </div>
+    </div>
+    <button class="test-start-btn" id="testStartBtn">开始测试 🚀</button>
+  </div>
+
+  <!-- 测试进行中 -->
+  <div id="testArea" style="display:none">
+    <div class="test-top-bar">
+      <div class="test-progress-info">
+        <span id="testProgressNum">1/10</span>
+        <span class="test-timer" id="testTimer">00:00</span>
+      </div>
+      <div class="test-progress-bar"><div class="test-progress-fill" id="testProgressFill"></div></div>
+      <button class="test-quit-btn" id="testQuitBtn">退出</button>
+    </div>
+    <div class="test-question-card">
+      <div class="test-q-type" id="testQType">看英选中</div>
+      <div class="test-q-word" id="testQWord">apple</div>
+      <button class="test-speak-btn" id="testSpeakBtn" style="display:none">🔊 朗读</button>
+      <div class="test-q-prompt" id="testQPrompt">选出正确的中文释义：</div>
+      <div class="test-options-grid" id="testOptionsGrid"></div>
+    </div>
+  </div>
+
+  <!-- 测试结果 -->
+  <div id="testResult" style="display:none">
+    <div class="test-result-card">
+      <div class="test-score-circle" id="testScoreCircle">
+        <span class="test-score-num" id="testScoreNum">0</span>
+        <span class="test-score-unit">分</span>
+      </div>
+      <div class="test-result-stats">
+        <div class="test-result-stat">
+          <div class="test-result-val" id="testResultCorrect">0</div>
+          <div class="test-result-label">正确</div>
+        </div>
+        <div class="test-result-stat">
+          <div class="test-result-val" id="testResultWrong">0</div>
+          <div class="test-result-label">错误</div>
+        </div>
+        <div class="test-result-stat">
+          <div class="test-result-val" id="testResultTime">00:00</div>
+          <div class="test-result-label">用时</div>
+        </div>
+      </div>
+      <div class="test-result-msg" id="testResultMsg">继续加油！</div>
+    </div>
+    <div class="test-wrong-section" id="testWrongSection" style="display:none">
+      <h3>📝 错题回顾</h3>
+      <div id="testWrongList"></div>
+    </div>
+    <div class="test-result-actions">
+      <button class="test-retry-btn" id="testRetryBtn">再来一次</button>
+      <button class="test-back-btn" id="testBackBtn">返回</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
