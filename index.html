@@ -1652,10 +1652,30 @@ function showWord(idx) {
   document.getElementById('cardExampleCn').textContent = w.exampleCn;
   document.getElementById('cardMemory').textContent = '💡 ' + w.memory;
   document.getElementById('flipCard').classList.remove('flipped');
+  // 预览模式视觉标记
+  const badge = document.getElementById('previewBadge');
+  if (isPreview) {
+    if (!badge) {
+      const el = document.createElement('div');
+      el.id = 'previewBadge';
+      el.style.cssText = 'position:absolute;top:8px;right:8px;background:#f59e0b;color:#fff;font-size:11px;padding:3px 8px;border-radius:8px;font-weight:600;pointer-events:none;z-index:5';
+      el.textContent = '预览模式';
+      document.getElementById('flipCard').style.position = 'relative';
+      document.getElementById('flipCard').appendChild(el);
+    }
+  } else if (badge) {
+    badge.remove();
+  }
 }
 
 function nextWord() {
-  // 找下一个未学或学习中的单词
+  if (isPreview) {
+    // 预览模式：顺序浏览全部单词
+    currentWordIdx = (currentWordIdx + 1) % WORDS.length;
+    showWord(currentWordIdx);
+    return;
+  }
+  // 学习模式：找下一个未学或学习中的单词
   const unlearned = WORDS.filter(w => state.wordStates[w.word].status !== 'mastered');
   if (unlearned.length === 0) {
     showToast('🎉 所有单词已掌握！');
@@ -1671,6 +1691,7 @@ function nextWord() {
 }
 
 function markKnow() {
+  if (isPreview) { showToast('👁️ 预览模式，不记录进度'); nextWord(); return; }
   const w = WORDS[currentWordIdx];
   const ws = state.wordStates[w.word];
   ws.correctCount++;
@@ -1703,6 +1724,7 @@ function markKnow() {
 }
 
 function markForgot() {
+  if (isPreview) { showToast('👁️ 预览模式，不记录进度'); nextWord(); return; }
   const w = WORDS[currentWordIdx];
   const ws = state.wordStates[w.word];
   ws.wrongCount++;
