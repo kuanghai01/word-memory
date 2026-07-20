@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>初中单词记忆</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #4f46e5;
+  --primary-light: #818cf8;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --text: #1e293b;
+  --text-light: #64748b;
+  --border: #e2e8f0;
+  --radius: 16px;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== Header ===== */
+.header {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white;
+  padding: 16px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(79,70,229,0.3);
+}
+.header h1 { font-size: 20px; font-weight: 700; }
+.header .subtitle { font-size: 13px; opacity: 0.85; margin-top: 2px; }
+
+/* ===== Tab Bar ===== */
+.tab-bar {
+  display: flex;
+  background: white;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 60px;
+  z-index: 99;
+}
+.tab-bar .tab {
+  flex: 1;
+  padding: 12px 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-light);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+}
+.tab-bar .tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  font-weight: 600;
+}
+
+/* ===== Page Container ===== */
+.page { display: none; padding: 16px; max-width: 480px; margin: 0 auto; }
+.page.active { display: block; }
+
+/* ===== Cards ===== */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  border: 1px solid var(--border);
+}
+.card-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.card-desc { font-size: 13px; color: var(--text-light); }
+
+/* ===== Stats Row ===== */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.stat-box {
+  background: white;
+  border-radius: 12px;
+  padding: 14px 10px;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+.stat-box .num { font-size: 24px; font-weight: 700; color: var(--primary); }
+.stat-box .label { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+
+/* ===== Word Card (Flip) ===== */
+.flip-card {
+  perspective: 1000px;
+  height: 280px;
+  margin-bottom: 16px;
+}
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+}
+.flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+.flip-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+}
+.flip-front {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+.flip-back {
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+  color: white;
+  transform: rotateY(180deg);
+}
+.flip-front .word { font-size: 36px; font-weight: 700; margin-bottom: 8px; }
+.flip-front .phonetic { font-size: 16px; opacity: 0.9; }
+.flip-front .hint { font-size: 13px; opacity: 0.7; margin-top: 20px; }
+.flip-back .meaning { font-size: 28px; font-weight: 700; margin-bottom: 12px; }
+.flip-back .pos { font-size: 14px; opacity: 0.85; margin-bottom: 8px; }
+.flip-back .example { font-size: 14px; font-style: italic; opacity: 0.9; line-height: 1.6; }
+.flip-back .example-cn { font-size: 13px; opacity: 0.8; margin-top: 4px; }
+.flip-back .memory-tip { font-size: 12px; opacity: 0.75; margin-top: 12px; padding: 8px; background: rgba(255,255,255,0.15); border-radius: 8px; }
+
+/* ===== Buttons ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: #4338ca; }
+.btn-success { background: var(--success); color: white; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-outline { background: white; color: var(--primary); border: 2px solid var(--primary); }
+.btn-sm { padding: 8px 16px; font-size: 13px; }
+.btn-group { display: flex; gap: 10px; }
+.btn-group .btn { flex: 1; }
+
+/* ===== Progress Bar ===== */
+.progress-bar {
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+.progress-bar .fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--primary-light));
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+
+/* ===== Quiz Options ===== */
+.quiz-option {
+  display: block;
+  width: 100%;
+  padding: 14px 18px;
+  margin-bottom: 10px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: white;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.quiz-option:hover { border-color: var(--primary-light); background: #f8f7ff; }
+.quiz-option.correct { border-color: var(--success); background: #ecfdf5; color: #065f46; }
+.quiz-option.wrong { border-color: var(--danger); background: #fef2f2; color: #991b1b; }
+.quiz-option:disabled { cursor: not-allowed; }
+
+/* ===== Word List Item ===== */
+.word-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.word-item:active { transform: scale(0.98); }
+.word-item .word-info { flex: 1; }
+.word-item .word-text { font-size: 16px; font-weight: 600; }
+.word-item .word-meaning { font-size: 13px; color: var(--text-light); margin-top: 2px; }
+.word-item .word-status {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+.status-new { background: var(--text-light); }
+.status-learning { background: var(--warning); }
+.status-mastered { background: var(--success); }
+
+/* ===== Section Title ===== */
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-title .badge {
+  font-size: 12px;
+  background: var(--primary);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* ===== Toast ===== */
+.toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(0,0,0,0.85);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  opacity: 0;
+  transition: all 0.3s;
+  z-index: 999;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ===== Mode Selector ===== */
+.mode-selector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.mode-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 2px solid var(--border);
+  background: white;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.mode-btn.active { border-color: var(--primary); background: #eef2ff; color: var(--primary); font-weight: 600; }
+
+/* ===== Empty State ===== */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-light);
+}
+.empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+.empty-state p { font-size: 14px; }
+
+/* ===== Grammar Card ===== */
+.grammar-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 14px;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.grammar-card:active { transform: scale(0.98); }
+.grammar-card .grammar-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.grammar-card .grammar-summary {
+  font-size: 13px;
+  color: var(--text-light);
+  line-height: 1.6;
+}
+.grammar-card .grammar-status {
+  display: inline-block;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-top: 8px;
+  font-weight: 600;
+}
+.grammar-status-new { background: #f1f5f9; color: var(--text-light); }
+.grammar-status-done { background: #ecfdf5; color: #065f46; }
+.grammar-detail { display: none; }
+.grammar-card.open .grammar-detail { display: block; }
+.grammar-card.open .grammar-summary { display: none; }
+.grammar-detail .sec-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 14px 0 6px;
+}
+.grammar-detail .sec-title:first-child { margin-top: 0; }
+.grammar-detail .ex-line {
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.grammar-detail .ex-en { color: var(--text); }
+.grammar-detail .ex-cn { color: var(--text-light); font-size: 12px; margin-top: 2px; }
+.grammar-detail .key-point {
+  padding: 10px 14px;
+  background: #fffbeb;
+  border-left: 3px solid var(--warning);
+  border-radius: 0 8px 8px 0;
+  font-size: 13px;
+  margin: 8px 0;
+  line-height: 1.6;
+}
+.grammar-detail .fill-blank {
+  display: inline-block;
+  border-bottom: 2px solid var(--primary);
+  min-width: 60px;
+  text-align: center;
+  color: var(--primary);
+  font-weight: 600;
+  margin: 0 2px;
+}
+.grammar-practice {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 12px;
+}
+.grammar-practice .pq-text {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+/* ===== Responsive ===== */
+@media (min-width: 768px) {
+  .page { padding: 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <h1>📚 初中单词记忆</h1>
+  <div class="subtitle">七年级上册 · 人教版</div>
+</div>
+
+<!-- Tab Bar -->
+<div class="tab-bar">
+  <div class="tab active" data-tab="learn">单词</div>
+  <div class="tab" data-tab="review">复习</div>
+  <div class="tab" data-tab="grammar">语法</div>
+  <div class="tab" data-tab="words">词库</div>
+  <div class="tab" data-tab="stats">统计</div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ========== 学习页 ========== -->
+<div class="page active" id="page-learn">
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="num" id="stat-today">0</div>
+      <div class="label">今日新学</div>
+    </div>
+    <div class="stat-box">
+      <div class="num" id="stat-total">0</div>
+      <div class="label">已掌握</div>
+    </div>
+    <div class="stat-box">
+      <div class="num" id="stat-streak">0</div>
+      <div class="label">连续天数</div>
+    </div>
+  </div>
+
+  <div class="mode-selector">
+    <div class="mode-btn active" data-mode="new">新词学习</div>
+    <div class="mode-btn" data-mode="preview">快速预览</div>
+  </div>
+
+  <!-- Flip Card -->
+  <div class="flip-card" id="flipCard">
+    <div class="flip-card-inner">
+      <div class="flip-face flip-front">
+        <div class="word" id="cardWord">apple</div>
+        <div class="phonetic" id="cardPhonetic">/ˈæpl/</div>
+        <div class="hint">👆 点击卡片翻转查看释义</div>
+      </div>
+      <div class="flip-face flip-back">
+        <div class="meaning" id="cardMeaning">n. 苹果</div>
+        <div class="pos" id="cardPos"></div>
+        <div class="example" id="cardExample">I like apples.</div>
+        <div class="example-cn" id="cardExampleCn">我喜欢苹果。</div>
+        <div class="memory-tip" id="cardMemory">🍎 联想：一个(a) 苹果(apple)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-danger" id="btnForgot">😕 不认识</button>
+    <button class="btn btn-success" id="btnKnow">😊 认识</button>
+  </div>
+  <button class="btn btn-outline" style="margin-top:10px" id="btnListen">🔊 听发音</button>
+</div>
+
+<!-- ========== 复习页 ========== -->
+<div class="page" id="page-review">
+  <div id="reviewEmpty" class="empty-state">
+    <div class="icon">🎉</div>
+    <p>太棒了！今天没有需要复习的单词</p>
+    <p style="margin-top:8px">去"学习"页面学新词吧</p>
+  </div>
+
+  <div id="reviewContent" style="display:none">
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">📅 艾宾浩斯复习</div>
+      <div class="card-desc">根据遗忘曲线，在你即将忘记时提醒复习</div>
+      <div class="progress-bar"><div class="fill" id="reviewProgress" style="width:0%"></div></div>
+      <div style="font-size:13px;color:var(--text-light);margin-top:4px" id="reviewProgressText">进度：0/0</div>
+    </div>
+
+    <div id="quizArea">
+      <div style="font-size:14px;color:var(--text-light);margin-bottom:8px" id="quizPrompt">请选择正确的中文释义：</div>
+      <div style="font-size:28px;font-weight:700;text-align:center;margin:20px 0;color:var(--primary)" id="quizWord">apple</div>
+      <div id="quizOptions"></div>
+    </div>
+
+    <div id="quizResult" style="display:none;text-align:center;padding:20px 0">
+      <div style="font-size:48px;margin-bottom:12px" id="resultEmoji">✅</div>
+      <div style="font-size:18px;font-weight:600" id="resultText">回答正确！</div>
+      <button class="btn btn-primary" style="margin-top:20px" id="btnNextReview">继续复习</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 语法页 ========== -->
+<div class="page" id="page-grammar">
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="num" id="stat-grammar-today">0</div>
+      <div class="label">今日新知</div>
+    </div>
+    <div class="stat-box">
+      <div class="num" id="stat-grammar-total">0</div>
+      <div class="label">已学语法</div>
+    </div>
+    <div class="stat-box">
+      <div class="num" id="stat-grammar-streak">0</div>
+      <div class="label">连续天数</div>
+    </div>
+  </div>
+
+  <div class="section-title">📐 今日语法</div>
+  <div id="grammarToday"></div>
+
+  <div class="section-title" style="margin-top:20px">📋 语法清单</div>
+  <div id="grammarList"></div>
+</div>
+
+<!-- ========== 词库页 ========== -->
+<div class="page" id="page-words">
+  <div class="section-title">📖 全部单词 <span class="badge" id="wordCount">0</span></div>
+  <div class="mode-selector" style="margin-bottom:12px">
+    <div class="mode-btn active" data-filter="all">全部</div>
+    <div class="mode-btn" data-filter="new">未学</div>
+    <div class="mode-btn" data-filter="learning">学习中</div>
+    <div class="mode-btn" data-filter="mastered">已掌握</div>
+  </div>
+  <div id="wordList"></div>
+</div>
+
+<!-- ========== 统计页 ========== -->
+<div class="page" id="page-stats">
+  <div class="section-title">📊 学习统计</div>
+  <div class="card">
+    <div class="card-title">本周学习</div>
+    <div id="weeklyChart" style="margin-top:12px"></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <div class="card-title">掌握程度</div>
+    <div style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:13px">未学</span>
+        <span style="font-size:13px;color:var(--text-light)" id="statNewCount">0</span>
+      </div>
+      <div class="progress-bar"><div class="fill" id="statNewBar" style="width:0%;background:var(--text-light)"></div></div>
+      <div style="display:flex;justify-content:space-between;margin:10px 0 6px">
+        <span style="font-size:13px">学习中</span>
+        <span style="font-size:13px;color:var(--text-light)" id="statLearningCount">0</span>
+      </div>
+      <div class="progress-bar"><div class="fill" id="statLearningBar" style="width:0%;background:var(--warning)"></div></div>
+      <div style="display:flex;justify-content:space-between;margin:10px 0 6px">
+        <span style="font-size:13px">已掌握</span>
+        <span style="font-size:13px;color:var(--text-light)" id="statMasteredCount">0</span>
+      </div>
+      <div class="progress-bar"><div class="fill" id="statMasteredBar" style="width:0%;background:var(--success)"></div></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <div class="card-title">🏆 成就</div>
+    <div id="achievements" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// 单词库 - 七年级上册示例（30个词）
+// ============================================================
+const WORDS = [
+  { word:"apple", phonetic:"/ˈæpl/", pos:"n.", meaning:"苹果", example:"I like apples.", exampleCn:"我喜欢苹果。", memory:"🍎 一个(a)苹果(apple)", unit:1 },
+  { word:"banana", phonetic:"/bəˈnɑːnə/", pos:"n.", meaning:"香蕉", example:"Bananas are yellow.", exampleCn:"香蕉是黄色的。", memory:"🍌 爸爸(ba)拿(na)香蕉", unit:1 },
+  { word:"book", phonetic:"/bʊk/", pos:"n.", meaning:"书", example:"This is my book.", exampleCn:"这是我的书。", memory:"📖 像boo+k的形状", unit:1 },
+  { word:"cat", phonetic:"/kæt/", pos:"n.", meaning:"猫", example:"The cat is cute.", exampleCn:"这只猫很可爱。", memory:"🐱 猫(cat)吃草(cao)？不对，是猫！", unit:1 },
+  { word:"dog", phonetic:"/dɒɡ/", pos:"n.", meaning:"狗", example:"I have a dog.", exampleCn:"我有一只狗。", memory:"🐕 小狗dog汪汪叫", unit:1 },
+  { word:"elephant", phonetic:"/ˈelɪfənt/", pos:"n.", meaning:"大象", example:"The elephant is big.", exampleCn:"大象很大。", memory:"🐘 e-le-phant 大象耳朵像e", unit:1 },
+  { word:"friend", phonetic:"/frend/", pos:"n.", meaning:"朋友", example:"She is my best friend.", exampleCn:"她是我最好的朋友。", memory:"👫 friend = fri(夫)+end 朋友到永远", unit:1 },
+  { word:"good", phonetic:"/ɡʊd/", pos:"adj.", meaning:"好的", example:"Good morning!", exampleCn:"早上好！", memory:"👍 good = go + od 好的", unit:1 },
+  { word:"hello", phonetic:"/həˈləʊ/", pos:"int.", meaning:"你好", example:"Hello, how are you?", exampleCn:"你好，你好吗？", memory:"👋 最常用的打招呼", unit:1 },
+  { word:"name", phonetic:"/neɪm/", pos:"n.", meaning:"名字", example:"My name is Tom.", exampleCn:"我的名字是汤姆。", memory:"📛 name = n+ame 名字", unit:1 },
+  { word:"school", phonetic:"/skuːl/", pos:"n.", meaning:"学校", example:"I go to school.", exampleCn:"我去上学。", memory:"🏫 s+chool 学校", unit:2 },
+  { word:"teacher", phonetic:"/ˈtiːtʃə/", pos:"n.", meaning:"老师", example:"My teacher is kind.", exampleCn:"我的老师很和蔼。", memory:"👩‍🏫 teach(教)+er = 老师", unit:2 },
+  { word:"student", phonetic:"/ˈstjuːdnt/", pos:"n.", meaning:"学生", example:"I am a student.", exampleCn:"我是一名学生。", memory:"🎓 study(学习)+ent = 学生", unit:2 },
+  { word:"classroom", phonetic:"/ˈklɑːsruːm/", pos:"n.", meaning:"教室", example:"Our classroom is big.", exampleCn:"我们的教室很大。", memory:"🏫 class(班级)+room(房间)=教室", unit:2 },
+  { word:"pencil", phonetic:"/ˈpensl/", pos:"n.", meaning:"铅笔", example:"This is a pencil.", exampleCn:"这是一支铅笔。", memory:"✏️ pen(笔)+cil 铅笔", unit:2 },
+  { word:"ruler", phonetic:"/ˈruːlə/", pos:"n.", meaning:"尺子", example:"I have a ruler.", exampleCn:"我有一把尺子。", memory:"📏 rule(规则)+r 尺子量规则", unit:2 },
+  { word:"eraser", phonetic:"/ɪˈreɪzə/", pos:"n.", meaning:"橡皮", example:"Can I use your eraser?", exampleCn:"我可以用你的橡皮吗？", memory:"🧽 erase(擦)+er = 橡皮", unit:2 },
+  { word:"family", phonetic:"/ˈfæməli/", pos:"n.", meaning:"家庭", example:"I love my family.", exampleCn:"我爱我的家庭。", memory:"👨‍👩‍👧 Father And Mother I Love You 首字母", unit:2 },
+  { word:"father", phonetic:"/ˈfɑːðə/", pos:"n.", meaning:"父亲", example:"My father is tall.", exampleCn:"我父亲很高。", memory:"👨 fam+father 爸爸", unit:2 },
+  { word:"mother", phonetic:"/ˈmʌðə/", pos:"n.", meaning:"母亲", example:"My mother is nice.", exampleCn:"我妈妈很好。", memory:"👩 妈妈(mother)很温柔", unit:2 },
+  { word:"brother", phonetic:"/ˈbrʌðə/", pos:"n.", meaning:"兄弟", example:"He is my brother.", exampleCn:"他是我的兄弟。", memory:"👦 bro(兄弟)+ther 兄弟", unit:2 },
+  { word:"sister", phonetic:"/ˈsɪstə/", pos:"n.", meaning:"姐妹", example:"She is my sister.", exampleCn:"她是我的姐妹。", memory:"👧 s+ister 姐妹", unit:2 },
+  { word:"happy", phonetic:"/ˈhæpi/", pos:"adj.", meaning:"快乐的", example:"I am very happy.", exampleCn:"我非常快乐。", memory:"😊 hap(运气)+py 快乐", unit:3 },
+  { word:"sad", phonetic:"/sæd/", pos:"adj.", meaning:"伤心的", example:"Don't be sad.", exampleCn:"不要伤心。", memory:"😢 sad 伤心", unit:3 },
+  { word:"like", phonetic:"/laɪk/", pos:"v.", meaning:"喜欢", example:"I like music.", exampleCn:"我喜欢音乐。", memory:"❤️ like 喜欢", unit:3 },
+  { word:"play", phonetic:"/pleɪ/", pos:"v.", meaning:"玩；播放", example:"Let's play games.", exampleCn:"我们来玩游戏吧。", memory:"🎮 play 玩", unit:3 },
+  { word:"read", phonetic:"/riːd/", pos:"v.", meaning:"阅读", example:"I read books.", exampleCn:"我读书。", memory:"📖 read 阅读", unit:3 },
+  { word:"write", phonetic:"/raɪt/", pos:"v.", meaning:"写", example:"I write a letter.", exampleCn:"我写一封信。", memory:"✍️ write 写", unit:3 },
+  { word:"color", phonetic:"/ˈkʌlə/", pos:"n.", meaning:"颜色", example:"What color is it?", exampleCn:"它是什么颜色？", memory:"🎨 color 颜色", unit:3 },
+  { word:"red", phonetic:"/red/", pos:"adj./n.", meaning:"红色；红的", example:"The apple is red.", exampleCn:"苹果是红色的。", memory:"🔴 red 红色", unit:3 }
+];
+
+// ============================================================
+// 状态管理
+// ============================================================
+const ST_KEY = 'word_memory_state_v1';
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(ST_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { wordStates: {}, reviewQueue: {}, todayNew: 0, lastDate: '', streak: 0, totalMastered: 0, weeklyLog: {} };
+}
+
+function saveState() {
+  localStorage.setItem(ST_KEY, JSON.stringify(state));
+}
+
+let state = loadState();
+
+// 初始化每个单词的状态
+WORDS.forEach(w => {
+  if (!state.wordStates[w.word]) {
+    state.wordStates[w.word] = { status: 'new', correctCount: 0, wrongCount: 0, lastReview: null, nextReview: null };
+  }
+});
+
+// 检查连续天数
+function checkStreak() {
+  const today = new Date().toISOString().slice(0,10);
+  if (state.lastDate === today) return;
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+  if (state.lastDate === yesterday) {
+    state.streak++;
+  } else if (state.lastDate !== today) {
+    state.streak = 1;
+  }
+  state.lastDate = today;
+  state.todayNew = 0;
+  saveState();
+}
+checkStreak();
+
+// ============================================================
+// 工具函数
+// ============================================================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function speak(text) {
+  if ('speechSynthesis' in window) {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US';
+    u.rate = 0.8;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+  } else {
+    showToast('当前浏览器不支持语音');
+  }
+}
+
+
+
+// ============================================================
+// 学习页
+// ============================================================
+let currentWordIdx = 0;
+let isPreview = false;
+
+function updateLearnStats() {
+  document.getElementById('stat-today').textContent = state.todayNew;
+  document.getElementById('stat-total').textContent = state.totalMastered;
+  document.getElementById('stat-streak').textContent = state.streak;
+}
+
+function showWord(idx) {
+  const w = WORDS[idx];
+  document.getElementById('cardWord').textContent = w.word;
+  document.getElementById('cardPhonetic').textContent = w.phonetic;
+  document.getElementById('cardMeaning').textContent = w.pos + ' ' + w.meaning;
+  document.getElementById('cardPos').textContent = '';
+  document.getElementById('cardExample').textContent = '"' + w.example + '"';
+  document.getElementById('cardExampleCn').textContent = w.exampleCn;
+  document.getElementById('cardMemory').textContent = '💡 ' + w.memory;
+  document.getElementById('flipCard').classList.remove('flipped');
+}
+
+function nextWord() {
+  // 找下一个未学或学习中的单词
+  const unlearned = WORDS.filter(w => state.wordStates[w.word].status !== 'mastered');
+  if (unlearned.length === 0) {
+    showToast('🎉 所有单词已掌握！');
+    currentWordIdx = 0;
+  } else {
+    currentWordIdx = (currentWordIdx + 1) % WORDS.length;
+    while (state.wordStates[WORDS[currentWordIdx].word].status === 'mastered') {
+      currentWordIdx = (currentWordIdx + 1) % WORDS.length;
+    }
+  }
+  showWord(currentWordIdx);
+}
+
+function markKnow() {
+  const w = WORDS[currentWordIdx];
+  const ws = state.wordStates[w.word];
+  ws.correctCount++;
+  ws.lastReview = Date.now();
+  if (ws.status === 'new') {
+    ws.status = 'learning';
+    state.todayNew++;
+    // 设置复习时间点（简化版：1天后）
+    ws.nextReview = Date.now() + 86400000;
+    state.reviewQueue[w.word] = ws.nextReview;
+  } else if (ws.correctCount >= 3) {
+    ws.status = 'mastered';
+    state.totalMastered++;
+    delete state.reviewQueue[w.word];
+  }
+  saveState();
+  updateLearnStats();
+  showToast('✅ 已掌握！');
+  nextWord();
+}
+
+function markForgot() {
+  const w = WORDS[currentWordIdx];
+  const ws = state.wordStates[w.word];
+  ws.wrongCount++;
+  ws.correctCount = 0;
+  ws.lastReview = Date.now();
+  ws.nextReview = Date.now() + 3600000; // 1小时后复习
+  state.reviewQueue[w.word] = ws.nextReview;
+  if (ws.status === 'new') {
+    ws.status = 'learning';
+    state.todayNew++;
+  }
+  saveState();
+  updateLearnStats();
+  showToast('💪 继续加油，稍后会复习');
+  nextWord();
+}
+
+document.getElementById('flipCard').addEventListener('click', () => {
+  document.getElementById('flipCard').classList.toggle('flipped');
+});
+document.getElementById('btnKnow').addEventListener('click', markKnow);
+document.getElementById('btnForgot').addEventListener('click', markForgot);
+document.getElementById('btnListen').addEventListener('click', () => {
+  speak(WORDS[currentWordIdx].word);
+});
+
+// 模式切换
+document.querySelectorAll('#page-learn .mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#page-learn .mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    isPreview = btn.dataset.mode === 'preview';
+  });
+});
+
+// ============================================================
+// 复习页
+// ============================================================
+let currentReviewWord = null;
+
+function getDueReviews() {
+  const now = Date.now();
+  return Object.entries(state.reviewQueue)
+    .filter(([_, time]) => time <= now)
+    .map(([word, _]) => word);
+}
+
+function renderReview() {
+  const due = getDueReviews();
+  document.getElementById('reviewEmpty').style.display = due.length === 0 ? 'block' : 'none';
+  document.getElementById('reviewContent').style.display = due.length > 0 ? 'block' : 'none';
+  
+  if (due.length > 0) {
+    const total = Object.keys(state.reviewQueue).length;
+    const done = total - due.length;
+    document.getElementById('reviewProgress').style.width = (done / total * 100) + '%';
+    document.getElementById('reviewProgressText').textContent = `进度：${done}/${total}`;
+    startQuiz(due);
+  }
+}
+
+function startQuiz(due) {
+  currentReviewWord = due[Math.floor(Math.random() * due.length)];
+  const w = WORDS.find(x => x.word === currentReviewWord);
+  
+  document.getElementById('quizArea').style.display = 'block';
+  document.getElementById('quizResult').style.display = 'none';
+  document.getElementById('quizWord').textContent = w.word;
+  document.getElementById('quizPrompt').textContent = '请选择正确的中文释义：';
+  
+  // 生成选项
+  const correct = w.pos + ' ' + w.meaning;
+  const wrongs = shuffle(WORDS.filter(x => x.word !== w.word)).slice(0, 3).map(x => x.pos + ' ' + x.meaning);
+  const options = shuffle([correct, ...wrongs]);
+  
+  const container = document.getElementById('quizOptions');
+  container.innerHTML = '';
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => checkAnswer(btn, opt, correct));
+    container.appendChild(btn);
+  });
+}
+
+function checkAnswer(btn, selected, correct) {
+  const buttons = document.querySelectorAll('.quiz-option');
+  buttons.forEach(b => b.disabled = true);
+  
+  if (selected === correct) {
+    btn.classList.add('correct');
+    document.getElementById('resultEmoji').textContent = '✅';
+    document.getElementById('resultText').textContent = '回答正确！';
+    
+    const ws = state.wordStates[currentReviewWord];
+    ws.correctCount++;
+    ws.lastReview = Date.now();
+    if (ws.correctCount >= 3) {
+      ws.status = 'mastered';
+      state.totalMastered++;
+      delete state.reviewQueue[currentReviewWord];
+    } else {
+      // 下一次复习
+      const intervals = [86400000, 172800000, 604800000]; // 1天, 2天, 7天
+      const idx = Math.min(ws.correctCount - 1, intervals.length - 1);
+      ws.nextReview = Date.now() + intervals[idx];
+      state.reviewQueue[currentReviewWord] = ws.nextReview;
+    }
+  } else {
+    btn.classList.add('wrong');
+    document.getElementById('resultEmoji').textContent = '❌';
+    document.getElementById('resultText').textContent = '正确答案：' + correct;
+    
+    const ws = state.wordStates[currentReviewWord];
+    ws.wrongCount++;
+    ws.correctCount = 0;
+    ws.nextReview = Date.now() + 3600000; // 1小时后
+    state.reviewQueue[currentReviewWord] = ws.nextReview;
+  }
+  saveState();
+  
+  document.getElementById('quizArea').style.display = 'none';
+  document.getElementById('quizResult').style.display = 'block';
+}
+
+document.getElementById('btnNextReview').addEventListener('click', () => {
+  renderReview();
+});
+
+// ============================================================
+// 词库页
+// ============================================================
+let currentFilter = 'all';
+
+function renderWordList() {
+  const container = document.getElementById('wordList');
+  container.innerHTML = '';
+  document.getElementById('wordCount').textContent = WORDS.length;
+  
+  let filtered = WORDS;
+  if (currentFilter !== 'all') {
+    filtered = WORDS.filter(w => state.wordStates[w.word].status === currentFilter);
+  }
+  
+  filtered.forEach(w => {
+    const ws = state.wordStates[w.word];
+    const div = document.createElement('div');
+    div.className = 'word-item';
+    div.innerHTML = `
+      <div class="word-status status-${ws.status}"></div>
+      <div class="word-info">
+        <div class="word-text">${w.word}</div>
+        <div class="word-meaning">${w.pos} ${w.meaning}</div>
+      </div>
+    `;
+    div.addEventListener('click', () => {
+      const idx = WORDS.indexOf(w);
+      currentWordIdx = idx;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelector('[data-tab="learn"]').classList.add('active');
+      document.getElementById('page-learn').classList.add('active');
+      showWord(idx);
+    });
+    container.appendChild(div);
+  });
+}
+
+document.querySelectorAll('#page-words .mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#page-words .mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderWordList();
+  });
+});
+
+// ============================================================
+// 统计页
+// ============================================================
+function renderStats() {
+  const statuses = Object.values(state.wordStates).map(s => s.status);
+  const newCount = statuses.filter(s => s === 'new').length;
+  const learningCount = statuses.filter(s => s === 'learning').length;
+  const masteredCount = statuses.filter(s => s === 'mastered').length;
+  const total = statuses.length;
+  
+  document.getElementById('statNewCount').textContent = newCount;
+  document.getElementById('statLearningCount').textContent = learningCount;
+  document.getElementById('statMasteredCount').textContent = masteredCount;
+  document.getElementById('statNewBar').style.width = (newCount / total * 100) + '%';
+  document.getElementById('statLearningBar').style.width = (learningCount / total * 100) + '%';
+  document.getElementById('statMasteredBar').style.width = (masteredCount / total * 100) + '%';
+  
+  // 本周图表
+  const chart = document.getElementById('weeklyChart');
+  const days = ['日','一','二','三','四','五','六'];
+  const today = new Date();
+  let html = '<div style="display:flex;gap:6px;align-items:flex-end;height:100px">';
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today.getTime() - i * 86400000);
+    const key = d.toISOString().slice(0,10);
+    const dayName = days[d.getDay()];
+    const count = state.weeklyLog ? (state.weeklyLog[key] || 0) : 0;
+    const height = Math.max(4, count * 8);
+    html += `<div style="flex:1;text-align:center">
+      <div style="height:100px;position:relative;display:flex;align-items:flex-end;justify-content:center">
+        <div style="width:24px;height:${height}px;background:var(--primary);border-radius:4px 4px 0 0;opacity:${count > 0 ? 1 : 0.3}"></div>
+      </div>
+      <div style="font-size:11px;color:var(--text-light);margin-top:4px">${dayName}</div>
+    </div>`;
+  }
+  html += '</div>';
+  chart.innerHTML = html;
+  
+  // 成就
+  const ach = document.getElementById('achievements');
+  const achievements = [];
+  if (state.streak >= 3) achievements.push('🔥 连续学习' + state.streak + '天');
+  if (state.totalMastered >= 5) achievements.push('⭐ 掌握5个单词');
+  if (state.totalMastered >= 10) achievements.push('🏅 掌握10个单词');
+  if (state.totalMastered >= 20) achievements.push('🏆 掌握20个单词');
+  if (state.todayNew >= 5) achievements.push('📚 今日学习5个');
+  if (achievements.length === 0) achievements.push('🌱 继续努力，成就即将解锁！');
+  ach.innerHTML = achievements.map(a => `<div style="padding:8px 0;font-size:14px">${a}</div>`).join('');
+}
+
+// ============================================================
+// 语法库 - 初中核心语法点
+// ============================================================
+const GRAMMARS = [
+  {
+    id: 'present_simple',
+    title: '一般现在时',
+    summary: '表示经常性、习惯性的动作或存在的状态。',
+    structure: '主语 + 动词原形/动词第三人称单数',
+    examples: [
+      { en: 'I go to school every day.', cn: '我每天去上学。' },
+      { en: 'She likes reading books.', cn: '她喜欢读书。' },
+      { en: 'The sun rises in the east.', cn: '太阳从东方升起。' }
+    ],
+    keyPoints: [
+      '第三人称单数（he/she/it）动词加 -s 或 -es',
+      '否定句用 don\'t / doesn\'t + 动词原形',
+      '一般疑问句用 Do / Does 开头',
+      '频率副词：always, usually, sometimes, never'
+    ],
+    practice: {
+      question: 'She _____ (like) apples.',
+      options: ['like', 'likes', 'liked', 'liking'],
+      answer: 1
+    }
+  },
+  {
+    id: 'present_continuous',
+    title: '现在进行时',
+    summary: '表示现在正在进行的动作或发生的事情。',
+    structure: '主语 + am/is/are + 动词-ing',
+    examples: [
+      { en: 'I am reading a book now.', cn: '我现在正在读书。' },
+      { en: 'They are playing football.', cn: '他们正在踢足球。' },
+      { en: 'Look! The baby is walking.', cn: '看！宝宝在走路。' }
+    ],
+    keyPoints: [
+      'be 动词根据主语变化：I am, he/she/it is, we/you/they are',
+      '动词加 -ing 规则：直接加ing；去e加ing；双写加ing',
+      '时间标志词：now, look, listen, at the moment',
+      '否定句：am/is/are + not + doing'
+    ],
+    practice: {
+      question: 'Look! The children _____ (dance).',
+      options: ['dance', 'dances', 'are dancing', 'danced'],
+      answer: 2
+    }
+  },
+  {
+    id: 'past_simple',
+    title: '一般过去时',
+    summary: '表示过去某个时间发生的动作或存在的状态。',
+    structure: '主语 + 动词过去式（-ed）',
+    examples: [
+      { en: 'I visited my grandmother last week.', cn: '上周我看望了奶奶。' },
+      { en: 'She watched TV yesterday.', cn: '她昨天看了电视。' },
+      { en: 'They went to Beijing last year.', cn: '他们去年去了北京。' }
+    ],
+    keyPoints: [
+      '规则动词加 -ed；不规则动词需要特殊记忆（go→went, see→saw）',
+      '否定句用 didn\'t + 动词原形',
+      '一般疑问句用 Did 开头，动词还原原形',
+      '时间标志词：yesterday, last week/month/year, ago, in 2020'
+    ],
+    practice: {
+      question: 'He _____ (finish) his homework an hour ago.',
+      options: ['finish', 'finishes', 'finished', 'finishing'],
+      answer: 2
+    }
+  },
+  {
+    id: 'future_simple',
+    title: '一般将来时',
+    summary: '表示将来要发生的动作或存在的状态。',
+    structure: '主语 + will + 动词原形 / be going to + 动词原形',
+    examples: [
+      { en: 'I will go shopping tomorrow.', cn: '我明天要去购物。' },
+      { en: 'She is going to visit her friend.', cn: '她打算去看朋友。' },
+      { en: 'It will rain soon.', cn: '很快要下雨了。' }
+    ],
+    keyPoints: [
+      'will 用于预测和临时决定；be going to 用于计划和打算',
+      '否定句：will not (won\'t) + 动词原形',
+      '时间标志词：tomorrow, next week/month/year, soon, in the future',
+      'There will be... / There is going to be...'
+    ],
+    practice: {
+      question: 'We _____ (have) a party next Friday.',
+      options: ['will have', 'had', 'have', 'having'],
+      answer: 0
+    }
+  },
+  {
+    id: 'noun_plural',
+    title: '名词的复数形式',
+    summary: '表示两个或两个以上的人、事物或概念。',
+    structure: '名词 + -s / -es / 不规则变化',
+    examples: [
+      { en: 'one book → three books', cn: '一本书 → 三本书' },
+      { en: 'one bus → two buses', cn: '一辆公交 → 两辆公交' },
+      { en: 'one child → many children', cn: '一个孩子 → 很多孩子' }
+    ],
+    keyPoints: [
+      '一般加 -s：book→books, dog→dogs',
+      '以s/x/sh/ch/o结尾加 -es：box→boxes, tomato→tomatoes',
+      '辅音字母+y结尾变y为i加 -es：city→cities',
+      '不规则变化：man→men, woman→women, foot→feet, tooth→teeth'
+    ],
+    practice: {
+      question: 'There are three _____ (box) on the desk.',
+      options: ['box', 'boxs', 'boxes', 'boxies'],
+      answer: 2
+    }
+  },
+  {
+    id: 'pronouns',
+    title: '人称代词与物主代词',
+    summary: '代替名词表示人称和所有关系的词。',
+    structure: '主格(I/you/he/she/it/we/they) + 物主代词(my/your/his...)',
+    examples: [
+      { en: 'I am a student. My name is Tom.', cn: '我是学生。我叫汤姆。' },
+      { en: 'He is tall. His father is a doctor.', cn: '他很高。他爸爸是医生。' },
+      { en: 'This is her book.', cn: '这是她的书。' }
+    ],
+    keyPoints: [
+      '主格作主语：I, you, he, she, it, we, they',
+      '宾格作宾语：me, you, him, her, it, us, them',
+      '形容词性物主代词 + 名词：my book, your bag',
+      '名词性物主代词独立使用：Mine is red. This pen is hers.'
+    ],
+    practice: {
+      question: '_____ name is Lily. She is my good friend.',
+      options: ['Her', 'His', 'My', 'Your'],
+      answer: 0
+    }
+  },
+  {
+    id: 'adjective_comparative',
+    title: '形容词比较级和最高级',
+    summary: '用于比较两个或两个以上的人或事物。',
+    structure: 'A + be + 形容词比较级 + than + B / the + 最高级',
+    examples: [
+      { en: 'Tom is taller than Mike.', cn: '汤姆比迈克高。' },
+      { en: 'She is the best student in our class.', cn: '她是我们班最好的学生。' },
+      { en: 'This book is more interesting than that one.', cn: '这本书比那本更有趣。' }
+    ],
+    keyPoints: [
+      '单音节词加 -er/-est：tall→taller→tallest',
+      '以e结尾加 -r/-st：nice→nicer→nicest',
+      '辅音+y变y为i加 -er/-est：happy→happier→happiest',
+      '多音节词前加 more/most：beautiful→more beautiful→most beautiful',
+      '不规则：good→better→best, bad→worse→worst'
+    ],
+    practice: {
+      question: 'This river is _____ than that one.',
+      options: ['long', 'longer', 'longest', 'the longest'],
+      answer: 1
+    }
+  },
+  {
+    id: 'prepositions',
+    title: '常用介词（时间/地点）',
+    summary: '表示名词、代词与其他词之间关系的词。',
+    structure: '介词 + 名词/代词/动名词',
+    examples: [
+      { en: 'I get up at 7 o\'clock.', cn: '我7点起床。' },
+      { en: 'The book is on the desk.', cn: '书在桌子上。' },
+      { en: 'We go to school from Monday to Friday.', cn: '我们从周一到周五上学。' }
+    ],
+    keyPoints: [
+      '时间介词：at(时刻), on(具体某天), in(月份/年份/季节)',
+      '地点介词：in(里面), on(表面), at(小地点), under(下面)',
+      '方向介词：to(向), from(从), into(进入), out of(出来)',
+      '方式介词：by(乘坐), with(用), in(用语言)'
+    ],
+    practice: {
+      question: 'My birthday is _____ May.',
+      options: ['at', 'on', 'in', 'to'],
+      answer: 2
+    }
+  },
+  {
+    id: 'modal_verbs',
+    title: '情态动词（can/must/should）',
+    summary: '表示能力、许可、义务、建议等语气。',
+    structure: '主语 + 情态动词 + 动词原形',
+    examples: [
+      { en: 'I can swim.', cn: '我会游泳。' },
+      { en: 'You must wear a seatbelt.', cn: '你必须系安全带。' },
+      { en: 'You should drink more water.', cn: '你应该多喝水。' }
+    ],
+    keyPoints: [
+      'can/could 表示能力或许可',
+      'must 表示必须；mustn\'t 表示禁止',
+      'should/ought to 表示建议和义务',
+      '情态动词后接动词原形，第三人称不加 -s'
+    ],
+    practice: {
+      question: 'You _____ be quiet in the library.',
+      options: ['can', 'must', 'may', 'could'],
+      answer: 1
+    }
+  },
+  {
+    id: 'there_be',
+    title: 'There be 句型',
+    summary: '表示某处有某物或某人。',
+    structure: 'There is + 单数/不可数名词 + 地点 / There are + 复数名词 + 地点',
+    examples: [
+      { en: 'There is a book on the desk.', cn: '桌上有一本书。' },
+      { en: 'There are many students in the classroom.', cn: '教室里有很多学生。' },
+      { en: 'There was a storm last night.', cn: '昨晚有一场暴风雨。' }
+    ],
+    keyPoints: [
+      '就近原则：be动词与最近的主语保持一致',
+      '否定句：There is/are not...',
+      '一般疑问句：Is/Are there...?',
+      '时态变化：There is/are（现在）→ There was/were（过去）→ There will be（将来）'
+    ],
+    practice: {
+      question: 'There _____ some milk in the glass.',
+      options: ['is', 'are', 'have', 'has'],
+      answer: 0
+    }
+  },
+  {
+    id: 'passive_voice',
+    title: '被动语态（初步）',
+    summary: '表示主语是动作的承受者。',
+    structure: '主语 + be + 过去分词（+ by + 执行者）',
+    examples: [
+      { en: 'The window was broken by Tom.', cn: '窗户被汤姆打破了。' },
+      { en: 'English is spoken in many countries.', cn: '很多国家说英语。' },
+      { en: 'The letter was written yesterday.', cn: '这封信是昨天写的。' }
+    ],
+    keyPoints: [
+      '一般现在时被动：am/is/are + 过去分词',
+      '一般过去时被动：was/were + 过去分词',
+      '一般将来时被动：will be + 过去分词',
+      '不及物动词没有被动语态'
+    ],
+    practice: {
+      question: 'The room _____ every day.',
+      options: ['cleans', 'is cleaned', 'cleaned', 'cleaning'],
+      answer: 1
+    }
+  },
+  {
+    id: 'object_clause',
+    title: '宾语从句',
+    summary: '在复合句中作宾语的从句。',
+    structure: '主句 + 连接词(that/if/疑问词) + 从句（陈述语序）',
+    examples: [
+      { en: 'I think (that) he is right.', cn: '我认为他是对的。' },
+      { en: 'I don\'t know if he will come.', cn: '我不知道他是否会来。' },
+      { en: 'Can you tell me where the hospital is?', cn: '你能告诉我医院在哪里吗？' }
+    ],
+    keyPoints: [
+      '引导词：that（陈述句变来）, whether/if（一般疑问句变来）, 疑问词（特殊疑问句变来）',
+      '陈述语序：连接词 + 主语 + 谓语',
+      '时态呼应：主句现在时，从句任意时态；主句过去时，从句相应过去时态',
+      '客观真理永远用一般现在时'
+    ],
+    practice: {
+      question: 'I want to know _____ he likes the movie.',
+      options: ['that', 'if', 'what', 'which'],
+      answer: 1
+    }
+  },
+  {
+    id: 'attributive_clause',
+    title: '定语从句（初步）',
+    summary: '修饰名词或代词的从句，由关系代词引导。',
+    structure: '先行词 + 关系代词(who/which/that) + 从句',
+    examples: [
+      { en: 'The boy who is tall is my brother.', cn: '那个高个子男孩是我哥哥。' },
+      { en: 'The book which I bought is interesting.', cn: '我买的那本书很有趣。' },
+      { en: 'This is the city that I visited last year.', cn: '这是我去年参观过的城市。' }
+    ],
+    keyPoints: [
+      'who 指人（作主语/宾语），whom 指人（作宾语）',
+      'which 指物（作主语/宾语）',
+      'that 指人或物（作主语/宾语）',
+      '关系代词在从句中作宾语时可省略'
+    ],
+    practice: {
+      question: 'The girl _____ is singing is my sister.',
+      options: ['which', 'who', 'whom', 'whose'],
+      answer: 1
+    }
+  },
+  {
+    id: 'present_perfect',
+    title: '现在完成时',
+    summary: '表示过去发生的动作对现在造成的影响或结果，或从过去持续到现在的动作或状态。',
+    structure: '主语 + have/has + 过去分词',
+    examples: [
+      { en: 'I have finished my homework.', cn: '我已经完成作业了。' },
+      { en: 'She has been to Beijing twice.', cn: '她已经去过北京两次了。' },
+      { en: 'They have lived here for ten years.', cn: '他们在这里住了十年了。' },
+      { en: 'He has just come back.', cn: '他刚刚回来。' }
+    ],
+    keyPoints: [
+      'have/has + 过去分词（done）',
+      'already(肯定), yet(否定/疑问), just, ever, never, for, since',
+      'have been to（去过某地，已回来）vs have gone to（去了某地，未回来）',
+      'for + 时间段；since + 时间点'
+    ],
+    practice: {
+      question: 'I _____ this book three times.',
+      options: ['read', 'have read', 'am reading', 'will read'],
+      answer: 1
+    }
+  },
+  {
+    id: 'past_continuous',
+    title: '过去进行时',
+    summary: '表示过去某一时刻或某一段时间正在进行的动作。',
+    structure: '主语 + was/were + doing',
+    examples: [
+      { en: 'I was reading at 8 last night.', cn: '昨晚8点我正在看书。' },
+      { en: 'They were playing football when it rained.', cn: '下雨时他们正在踢足球。' },
+      { en: 'She was cooking when I called her.', cn: '我打电话给她时她在做饭。' },
+      { en: 'He was watching TV while I was studying.', cn: '我在学习时他在看电视。' }
+    ],
+    keyPoints: [
+      'was/were + doing，was单数，were复数/you',
+      '常与when/while/was doing... when...配合使用',
+      '常与一般过去时配合：长动作背景，短动作打断',
+      '时间标志：at that time, at 8 yesterday, when, while'
+    ],
+    practice: {
+      question: 'I _____ a shower when the phone rang.',
+      options: ['take', 'took', 'was taking', 'am taking'],
+      answer: 2
+    }
+  },
+  {
+    id: 'adverbial_clause',
+    title: '状语从句（时间/条件）',
+    summary: '修饰动词、形容词或句子的从句。常见有时间、条件、原因状语从句。',
+    structure: '从属连词 + 主语 + 谓语',
+    examples: [
+      { en: 'When I came back, he was sleeping.', cn: '当我回来时，他正在睡觉。' },
+      { en: 'If it rains tomorrow, we will stay at home.', cn: '如果明天下雨，我们就待在家。' },
+      { en: 'I will call you as soon as I arrive.', cn: '我一到就给你打电话。' },
+      { en: 'Because it was cold, I stayed home.', cn: '因为天冷，我待在了家。' },
+      { en: 'He didn\'t come because he was ill.', cn: '他没来因为他生病了。' }
+    ],
+    keyPoints: [
+      '时间：when, while, before, after, until, as soon as',
+      '条件：if, unless（= if not）',
+      '原因：because, since, as',
+      "【主将从现】时间/条件状语从句中，主句用将来时，从句用一般现在时",
+      'because与so不可连用（虽然...但是），两者只能用其一'
+    ],
+    practice: {
+      question: 'I will tell him about it _____ he comes back.',
+      options: ['as soon as', 'until', 'because', 'while'],
+      answer: 0
+    }
+  },
+  {
+    id: 'exclamatory_sentence',
+    title: '感叹句',
+    summary: '表示强烈感情（惊奇、喜悦、愤怒等）的句子。',
+    structure: 'What + (a/an) + 形容词 + 名词 + 谓语！/ How + 形容词/副词 + 谓语！',
+    examples: [
+      { en: 'What a beautiful day it is!', cn: '多么美好的一天啊！' },
+      { en: 'How fast he runs!', cn: '他跑得多快啊！' },
+      { en: 'What delicious food this is!', cn: '多美味的食物啊！' },
+      { en: 'How lovely the baby is!', cn: '这个小宝宝多可爱啊！' },
+      { en: 'What an interesting book!', cn: '多么有趣的一本书啊！' }
+    ],
+    keyPoints: [
+      'What + (a/an) + 形容词 + 名词 + 谓语',
+      'How + 形容词/副词 + 谓语',
+      'What用于修饰名词，How用于修饰形容词/副词',
+      '不定冠词：单数可数名词前加a/an，复数和不可数不加'
+    ],
+    practice: {
+      question: '! _____ wonderful news it is!',
+      options: ['How', 'What', 'What a', 'How a'],
+      answer: 1
+    }
+  },
+  {
+    id: 'imperative_sentence',
+    title: '祈使句',
+    summary: '表示请求、命令、建议或劝告的句子，通常省略主语you。',
+    structure: '动词原形开头 / Don'+'t + 动词原形',
+    examples: [
+      { en: 'Open the door, please.', cn: '请开门。' },
+      { en: "Don't be late for school.", cn: '上学别迟到。' },
+      { en: "Let's go to school.", cn: '让我们上学去吧。' },
+      { en: "Don't run in the hallway.", cn: '不要在走廊里跑。' },
+      { en: 'Be quiet, please.', cn: '请安静。' }
+    ],
+    keyPoints: [
+      '肯定：动词原形开头',
+      '否定：Don'+'t + 动词原形 / Never + 动词原形',
+      'Let'+'s + 动词原形（建议）',
+      '请求语气加please，please放句末或句首均可'
+    ],
+    practice: {
+      question: "_____ run in the hallway. It's dangerous.",
+      options: ['Don\'t', 'No', 'Let\'s', 'Please'],
+      answer: 0
+    }
+  },
+  {
+    id: 'tag_question',
+    title: '反意疑问句',
+    summary: '在陈述句后附加一个简短问句，用于确认或表示疑问。',
+    structure: '陈述句 + 简短反问（助动词/be + 代词）',
+    examples: [
+      { en: "You are a student, aren't you?", cn: '你是学生，不是吗？' },
+      { en: "He doesn't like apples, does he?", cn: '他不喜欢苹果，是吗？' },
+      { en: "Let's go, shall we?", cn: '我们走吧，好吗？' },
+      { en: "They have been there, haven't they?", cn: '他们去过那里，不是吗？' }
+    ],
+    keyPoints: [
+      '原则：前肯后否，前否后肯',
+      '反问部分用助动词/be动词/情态动词 + 代词',
+      '陈述部分有no/never/few/little等否定词时，反问部分用肯定',
+      'Let\'s... 反问用 shall we；祈使句反问用 will you'
+    ],
+    practice: {
+      question: "She's a teacher, _____?",
+      options: ["isn't she", "doesn't she", "hasn't she", 'is she'],
+      answer: 0
+    }
+  },
+  {
+    id: 'non_finite',
+    title: '非谓语动词（初步）',
+    summary: '在句子中不作谓语的动词形式：动词不定式、动名词（-ing）。',
+    structure: 'to do（不定式）/ doing（动名词）',
+    examples: [
+      { en: 'I want to be a doctor.', cn: '我想成为医生。' },
+      { en: 'Enjoy reading is his hobby.', cn: '他喜欢阅读。' },
+      { en: 'It is important to learn English.', cn: '学英语很重要。' },
+      { en: 'He stopped to have a rest.', cn: '他停下来休息。' },
+      { en: 'She is good at singing.', cn: '她擅长唱歌。' }
+    ],
+    keyPoints: [
+      '不定式：to do，表目的、将来或具体某次动作',
+      '动名词：doing，表习惯、爱好或一般概念',
+      '只能跟不定式的词：want, decide, hope, plan, learn, try',
+      '只能跟动名词的词：enjoy, finish, practice, mind, be good at, stop',
+      'It is + adj. + (for sb) + to do'
+    ],
+    practice: {
+      question: 'My brother enjoys _____ football.',
+      options: ['play', 'playing', 'to play', 'played'],
+      answer: 1
+    }
+  },
+  {
+    id: 'subject_verb_agreement',
+    title: '主谓一致',
+    summary: '主语和谓语动词必须在人称和数上保持一致。',
+    structure: '主语 + 动词（数与主语一致）',
+    examples: [
+      { en: 'He likes math.', cn: '他喜欢数学。' },
+      { en: 'They like math.', cn: '他们喜欢数学。' },
+      { en: 'Both Tom and Jerry are kind.', cn: '汤姆和杰瑞都很善良。' },
+      { en: 'Either you or I am wrong.', cn: '要么你错要么我错了。' },
+      { en: 'The news is interesting.', cn: '这个消息很有趣。' }
+    ],
+    keyPoints: [
+      '复数主语用动词原形，单数主语加-s/-es',
+      'there be就近原则：There is a book and two pens.',
+      'both... and... 接复数动词',
+      'either... or..., neither... nor... 就近原则',
+      '不可数名词、动名词、不定式作主语通常接单数动词'
+    ],
+    practice: {
+      question: 'Neither he nor I _____ going there.',
+      options: ['are', 'am', 'is', 'be'],
+      answer: 1
+    }
+  }
+];
+
+// ============================================================
+// 语法模块 - 状态管理
+// ============================================================
+const GRAMMAR_STATE_KEY = 'grammar_state_v1';
+
+function loadGrammarState() {
+  try {
+    const raw = localStorage.getItem(GRAMMAR_STATE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { learned: {}, todayCount: 0, lastDate: '', streak: 0, totalLearned: 0 };
+}
+
+function saveGrammarState(gs) {
+  localStorage.setItem(GRAMMAR_STATE_KEY, JSON.stringify(gs));
+}
+
+let grammarState = loadGrammarState();
+
+function checkGrammarStreak() {
+  const today = new Date().toISOString().slice(0,10);
+  if (grammarState.lastDate === today) return;
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+  if (grammarState.lastDate === yesterday) {
+    grammarState.streak++;
+  } else if (grammarState.lastDate !== today) {
+    grammarState.streak = 1;
+  }
+  grammarState.lastDate = today;
+  grammarState.todayCount = 0;
+  saveGrammarState(grammarState);
+}
+checkGrammarStreak();
+
+// 每天推荐2条语法
+function getTodayGrammars() {
+  const today = new Date().toISOString().slice(0,10);
+  const seed = today.split('-').reduce((a, b) => a + parseInt(b), 0);
+  const total = GRAMMARS.length;
+  const idx1 = seed % total;
+  let idx2 = (seed + 1) % total;
+  if (idx2 === idx1) idx2 = (idx2 + 1) % total;
+  return [GRAMMARS[idx1], GRAMMARS[idx2]];
+}
+
+// ============================================================
+// 语法模块 - 渲染
+// ============================================================
+let currentGrammarPractice = null;
+
+function renderGrammarPage() {
+  // 更新统计
+  document.getElementById('stat-grammar-today').textContent = grammarState.todayCount;
+  document.getElementById('stat-grammar-total').textContent = grammarState.totalLearned;
+  document.getElementById('stat-grammar-streak').textContent = grammarState.streak;
+
+  // 今日推荐
+  const todayGrammars = getTodayGrammars();
+  const todayContainer = document.getElementById('grammarToday');
+  todayContainer.innerHTML = '';
+  todayGrammars.forEach(g => {
+    const learned = grammarState.learned[g.id];
+    todayContainer.appendChild(buildGrammarCard(g, learned, true));
+  });
+
+  // 全部语法清单
+  const listContainer = document.getElementById('grammarList');
+  listContainer.innerHTML = '';
+  GRAMMARS.forEach(g => {
+    const learned = grammarState.learned[g.id];
+    listContainer.appendChild(buildGrammarCard(g, learned, false));
+  });
+}
+
+function buildGrammarCard(g, learned, isToday) {
+  const card = document.createElement('div');
+  card.className = 'grammar-card';
+  
+  const statusClass = learned ? 'grammar-status-done' : 'grammar-status-new';
+  const statusText = learned ? '✅ 已学' : '📝 未学';
+  
+  card.innerHTML = `
+    <div class="grammar-title">${isToday ? '📌 ' : ''}${g.title}</div>
+    <div class="grammar-summary">${g.summary}</div>
+    <div class="grammar-detail">
+      <div class="sec-title">📐 结构</div>
+      <div class="key-point">${g.structure}</div>
+      <div class="sec-title">✏️ 例句</div>
+      ${g.examples.map(ex => `
+        <div class="ex-line">
+          <div class="ex-en">${ex.en}</div>
+          <div class="ex-cn">${ex.cn}</div>
+        </div>
+      `).join('')}
+      <div class="sec-title">💡 要点</div>
+      ${g.keyPoints.map(kp => `<div class="key-point">• ${kp}</div>`).join('')}
+      <div class="grammar-practice">
+        <div class="pq-text">🎯 练习：${g.practice.question}</div>
+        <div id="practice-${g.id}">
+          ${g.practice.options.map((opt, i) => `
+            <button class="quiz-option btn-sm" data-gid="${g.id}" data-idx="${i}" style="margin-bottom:6px">${opt}</button>
+          `).join('')}
+        </div>
+      </div>
+      <button class="btn btn-primary" id="btn-done-${g.id}" style="margin-top:12px" ${learned ? 'disabled' : ''}>
+        ${learned ? '✅ 已完成' : '🎉 我学会了'}
+      </button>
+    </div>
+    <span class="grammar-status ${statusClass}">${statusText}</span>
+  `;
+  
+  // 点击展开/收起
+  card.addEventListener('click', (e) => {
+    if (e.target.closest('.grammar-practice') || e.target.closest('button')) return;
+    card.classList.toggle('open');
+  });
+  
+  // 练习题按钮
+  setTimeout(() => {
+    card.querySelectorAll(`[data-gid="${g.id}"]`).forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.dataset.idx);
+        checkGrammarPractice(g, idx, card);
+      });
+    });
+    
+    // 我学会了按钮
+    const doneBtn = card.querySelector(`#btn-done-${g.id}`);
+    if (doneBtn && !learned) {
+      doneBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        markGrammarLearned(g.id);
+      });
+    }
+  }, 0);
+  
+  return card;
+}
+
+function checkGrammarPractice(g, selectedIdx, card) {
+  const buttons = card.querySelectorAll(`[data-gid="${g.id}"]`);
+  buttons.forEach(b => b.disabled = true);
+  
+  if (selectedIdx === g.practice.answer) {
+    buttons[selectedIdx].classList.add('correct');
+    showToast('✅ 回答正确！');
+  } else {
+    buttons[selectedIdx].classList.add('wrong');
+    buttons[g.practice.answer].classList.add('correct');
+    showToast('❌ 正确答案是：' + g.practice.options[g.practice.answer]);
+  }
+}
+
+function markGrammarLearned(gid) {
+  grammarState.learned[gid] = true;
+  grammarState.todayCount++;
+  grammarState.totalLearned++;
+  saveGrammarState(grammarState);
+  showToast('🎉 又掌握了一条语法！');
+  renderGrammarPage();
+}
+
+// ============================================================
+// Tab 切换 - 加入语法页
+// ============================================================
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('page-' + tab.dataset.tab).classList.add('active');
+    if (tab.dataset.tab === 'review') renderReview();
+    if (tab.dataset.tab === 'words') renderWordList();
+    if (tab.dataset.tab === 'stats') renderStats();
+    if (tab.dataset.tab === 'grammar') renderGrammarPage();
+  });
+});
+
+// ============================================================
+// 初始化
+// ============================================================
+showWord(currentWordIdx);
+updateLearnStats();
+</script>
+</body>
+</html>
