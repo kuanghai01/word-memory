@@ -1324,7 +1324,7 @@ function loadState() {
     const raw = localStorage.getItem(ST_KEY);
     if (raw) return JSON.parse(raw);
   } catch(e) {}
-  return { wordStates: {}, reviewQueue: {}, todayNew: 0, lastDate: '', streak: 0, totalMastered: 0, weeklyLog: {}, lastReviewWord: '' };
+  return { wordStates: {}, reviewQueue: {}, todayNew: 0, lastDate: '', lastStudyDate: '', streak: 0, totalMastered: 0, weeklyLog: {}, lastReviewWord: '' };
 }
 
 function saveState() {
@@ -1340,16 +1340,10 @@ WORDS.forEach(w => {
   }
 });
 
-// 检查连续天数
+// 检查日期切换（只重置计数，不修改连续天数）
 function checkStreak() {
   const today = new Date().toISOString().slice(0,10);
   if (state.lastDate === today) return;
-  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
-  if (state.lastDate === yesterday) {
-    state.streak++;
-  } else if (state.lastDate !== today) {
-    state.streak = 1;
-  }
   state.lastDate = today;
   state.todayNew = 0;
   saveState();
@@ -1440,6 +1434,13 @@ function markKnow() {
     // 更新本周学习记录
     const todayKey = new Date().toISOString().slice(0,10);
     state.weeklyLog[todayKey] = (state.weeklyLog[todayKey] || 0) + 1;
+    // 首次学习时更新连续天数
+    if (state.todayNew === 1) {
+      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+      if (state.lastStudyDate === yesterday) state.streak++;
+      else state.streak = 1;
+      state.lastStudyDate = todayKey;
+    }
     // 设置复习时间点（简化版：1天后）
     ws.nextReview = Date.now() + 86400000;
     state.reviewQueue[w.word] = ws.nextReview;
@@ -1467,6 +1468,13 @@ function markForgot() {
     state.todayNew++;
     const todayKey = new Date().toISOString().slice(0,10);
     state.weeklyLog[todayKey] = (state.weeklyLog[todayKey] || 0) + 1;
+    // 首次学习时更新连续天数
+    if (state.todayNew === 1) {
+      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+      if (state.lastStudyDate === yesterday) state.streak++;
+      else state.streak = 1;
+      state.lastStudyDate = todayKey;
+    }
   }
   saveState();
   updateLearnStats();
