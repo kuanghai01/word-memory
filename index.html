@@ -1324,7 +1324,7 @@ function loadState() {
     const raw = localStorage.getItem(ST_KEY);
     if (raw) return JSON.parse(raw);
   } catch(e) {}
-  return { wordStates: {}, reviewQueue: {}, todayNew: 0, lastDate: '', streak: 0, totalMastered: 0, weeklyLog: {} };
+  return { wordStates: {}, reviewQueue: {}, todayNew: 0, lastDate: '', streak: 0, totalMastered: 0, weeklyLog: {}, lastReviewWord: '' };
 }
 
 function saveState() {
@@ -1419,6 +1419,7 @@ function nextWord() {
   if (unlearned.length === 0) {
     showToast('🎉 所有单词已掌握！');
     currentWordIdx = 0;
+    showWord(0);
   } else {
     currentWordIdx = (currentWordIdx + 1) % WORDS.length;
     while (state.wordStates[WORDS[currentWordIdx].word].status === 'mastered') {
@@ -1436,6 +1437,9 @@ function markKnow() {
   if (ws.status === 'new') {
     ws.status = 'learning';
     state.todayNew++;
+    // 更新本周学习记录
+    const todayKey = new Date().toISOString().slice(0,10);
+    state.weeklyLog[todayKey] = (state.weeklyLog[todayKey] || 0) + 1;
     // 设置复习时间点（简化版：1天后）
     ws.nextReview = Date.now() + 86400000;
     state.reviewQueue[w.word] = ws.nextReview;
@@ -1461,6 +1465,8 @@ function markForgot() {
   if (ws.status === 'new') {
     ws.status = 'learning';
     state.todayNew++;
+    const todayKey = new Date().toISOString().slice(0,10);
+    state.weeklyLog[todayKey] = (state.weeklyLog[todayKey] || 0) + 1;
   }
   saveState();
   updateLearnStats();
@@ -1513,7 +1519,17 @@ function renderReview() {
 }
 
 function startQuiz(due) {
-  currentReviewWord = due[Math.floor(Math.random() * due.length)];
+  // 避免和上一题重复
+  let pick;
+  if (due.length > 1) {
+    do {
+      pick = due[Math.floor(Math.random() * due.length)];
+    } while (pick === state.lastReviewWord);
+  } else {
+    pick = due[0];
+  }
+  state.lastReviewWord = pick;
+  currentReviewWord = pick;
   const w = WORDS.find(x => x.word === currentReviewWord);
   
   document.getElementById('quizArea').style.display = 'block';
