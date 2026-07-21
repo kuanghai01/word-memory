@@ -667,6 +667,15 @@ body {
   <div class="mode-selector">
     <div class="mode-btn active" data-mode="new">新词学习</div>
     <div class="mode-btn" data-mode="preview">快速预览</div>
+    <div class="mode-btn" data-mode="spell">拼写练习</div>
+  </div>
+
+  <!-- 拼写输入区 -->
+  <div id="spellArea" style="display:none;margin:12px 16px 0">
+    <input type="text" id="spellInput" placeholder="输入英文单词..."
+      style="width:100%;padding:12px 16px;font-size:18px;border:2px solid var(--border);border-radius:10px;outline:none;font-family:inherit;text-align:center;letter-spacing:1px">
+    <div id="spellFeedback" style="text-align:center;margin-top:8px;font-size:14px;font-weight:600;display:none"></div>
+    <button class="btn btn-primary" id="spellSubmit" style="width:100%;margin-top:8px;padding:10px 0;font-size:15px">确认拼写</button>
   </div>
 
   <!-- Flip Card -->
@@ -1645,6 +1654,7 @@ if ('speechSynthesis' in window) {
 // ============================================================
 let currentWordIdx = 0;
 let isPreview = false;
+let isSpelling = false;
 
 function updateLearnStats() {
   document.getElementById('stat-today').textContent = state.todayNew;
@@ -1654,10 +1664,7 @@ function updateLearnStats() {
 
 function showWord(idx) {
   const w = WORDS[idx];
-  document.getElementById('cardWord').textContent = w.word;
-  document.getElementById('cardPhonetic').textContent = w.phonetic;
   document.getElementById('cardMeaning').textContent = w.pos + ' ' + w.meaning;
-  document.getElementById('cardPos').textContent = '';
   document.getElementById('cardExample').textContent = '"' + w.example + '"';
   document.getElementById('cardExampleCn').textContent = w.exampleCn;
   document.getElementById('cardMemory').textContent = '💡 ' + w.memory;
@@ -1675,6 +1682,24 @@ function showWord(idx) {
     }
   } else if (badge) {
     badge.remove();
+  }
+  // 拼写模式
+  if (isSpelling) {
+    document.getElementById('spellArea').style.display = 'block';
+    const inp = document.getElementById('spellInput');
+    inp.value = '';
+    inp.disabled = false;
+    document.getElementById('spellSubmit').disabled = false;
+    document.getElementById('spellFeedback').style.display = 'none';
+    setTimeout(() => inp.focus(), 100);
+    document.getElementById('cardWord').textContent = w.meaning;
+    document.getElementById('cardPhonetic').textContent = w.phonetic;
+    document.querySelector('#flipCard .hint').textContent = '✏️ 输入英文拼写';
+  } else {
+    document.getElementById('spellArea').style.display = 'none';
+    document.getElementById('cardWord').textContent = w.word;
+    document.getElementById('cardPhonetic').textContent = w.phonetic;
+    document.querySelector('#flipCard .hint').textContent = '👆 点击卡片翻转查看释义';
   }
 }
 
@@ -1762,8 +1787,46 @@ function markForgot() {
 }
 
 document.getElementById('flipCard').addEventListener('click', () => {
-  document.getElementById('flipCard').classList.toggle('flipped');
+  if (!isSpelling) document.getElementById('flipCard').classList.toggle('flipped');
 });
+
+// 拼写提交
+document.getElementById('spellSubmit').addEventListener('click', checkSpelling);
+document.getElementById('spellInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') checkSpelling();
+});
+
+function checkSpelling() {
+  if (isPreview) return;
+  const w = WORDS[currentWordIdx];
+  const input = document.getElementById('spellInput').value.trim().toLowerCase();
+  const correct = w.word.toLowerCase();
+  const feedback = document.getElementById('spellFeedback');
+  document.getElementById('spellInput').disabled = true;
+  document.getElementById('spellSubmit').disabled = true;
+  feedback.style.display = 'block';
+
+  if (input === correct) {
+    feedback.textContent = '✅ 正确！' + w.word;
+    feedback.style.color = 'var(--green)';
+    if (!isPreview && !isSpelling) {}
+    // 标记掌握
+    setTimeout(() => {
+      currentWordIdx = (currentWordIdx + 1) % WORDS.length;
+      showWord(currentWordIdx);
+    }, 1200);
+  } else {
+    feedback.textContent = '❌ 正确答案：' + w.word;
+    feedback.style.color = 'var(--red)';
+    // 再试一次或跳过
+    setTimeout(() => {
+      currentWordIdx = (currentWordIdx + 1) % WORDS.length;
+      showWord(currentWordIdx);
+    }, 2500);
+  }
+  document.getElementById('flipCard').classList.add('flipped');
+  speak(w.word);
+}
 document.getElementById('btnKnow').addEventListener('click', markKnow);
 document.getElementById('btnForgot').addEventListener('click', markForgot);
 document.getElementById('btnListen').addEventListener('click', () => {
@@ -1776,6 +1839,7 @@ document.querySelectorAll('#page-learn .mode-btn').forEach(btn => {
     document.querySelectorAll('#page-learn .mode-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     isPreview = btn.dataset.mode === 'preview';
+    isSpelling = btn.dataset.mode === 'spell';
   });
 });
 
