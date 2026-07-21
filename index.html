@@ -1685,6 +1685,7 @@ function showWord(idx) {
   }
   // 拼写模式
   if (isSpelling) {
+    document.querySelector('.btn-group').style.display = 'none';
     document.getElementById('spellArea').style.display = 'block';
     const inp = document.getElementById('spellInput');
     inp.value = '';
@@ -1697,6 +1698,7 @@ function showWord(idx) {
     document.querySelector('#flipCard .hint').textContent = '✏️ 输入英文拼写';
   } else {
     document.getElementById('spellArea').style.display = 'none';
+    document.querySelector('.btn-group').style.display = 'flex';
     document.getElementById('cardWord').textContent = w.word;
     document.getElementById('cardPhonetic').textContent = w.phonetic;
     document.querySelector('#flipCard .hint').textContent = '👆 点击卡片翻转查看释义';
@@ -1704,7 +1706,7 @@ function showWord(idx) {
 }
 
 function nextWord() {
-  if (isPreview) {
+  if (isPreview || isSpelling) {
     // 预览模式：顺序浏览全部单词
     currentWordIdx = (currentWordIdx + 1) % WORDS.length;
     showWord(currentWordIdx);
@@ -1840,6 +1842,7 @@ document.querySelectorAll('#page-learn .mode-btn').forEach(btn => {
     btn.classList.add('active');
     isPreview = btn.dataset.mode === 'preview';
     isSpelling = btn.dataset.mode === 'spell';
+    showWord(currentWordIdx);
   });
 });
 
