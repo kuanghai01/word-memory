@@ -3001,8 +3001,6 @@ function generateReport() {
   const learning = Object.values(state.wordStates).filter(s => s.status === 'learning').length;
   const notLearned = totalWords - mastered - learning;
   const masteryRate = Math.round(mastered / totalWords * 100);
-
-  // 本周数据
   const weekDays = [];
   for (let i = 6; i >= 0; i--) {
     const d = new Date(Date.now() - i * 86400000);
@@ -3011,29 +3009,25 @@ function generateReport() {
     weekDays.push({ day: dayName, count: state.weeklyLog[key] || 0 });
   }
   const weekTotal = weekDays.reduce((s, d) => s + d.count, 0);
-
-  // 语法
   const grammarTotal = Object.keys(state.grammarStates || {}).length;
   const grammarMastered = Object.values(state.grammarStates || {}).filter(s => s.status === 'mastered').length;
-
-  let report = `📊 学习报告 (${today})
-━━━━━━━━━━━━━━━━━━━━
-📚 单词进度: ${mastered}/${totalWords} (${masteryRate}%)
-  ✅ 已掌握: ${mastered} 个
-  📖 学习中: ${learning} 个
-  🆕 未学: ${notLearned} 个
-🔥 连续学习: ${state.streak} 天
-📈 今日新学: ${state.todayNew} 个
-
-📅 本周学习: ${weekTotal} 个
-${weekDays.map(d => `  周${d.day}: ${d.count}个`).join('
-')}
-
-📐 语法进度: ${grammarMastered}/${grammarTotal}
-━━━━━━━━━━━━━━━━━━━━
-💪 加油！坚持就是胜利！`;
-
-  document.getElementById('reportText').value = report;
+  let lines = [];
+  lines.push('📊 学习报告 (' + today + ')');
+  lines.push('━━━━━━━━━━━━━━━━━━━━');
+  lines.push('📚 单词进度: ' + mastered + '/' + totalWords + ' (' + masteryRate + '%)');
+  lines.push('  ✅ 已掌握: ' + mastered + ' 个');
+  lines.push('  📖 学习中: ' + learning + ' 个');
+  lines.push('  🆕 未学: ' + notLearned + ' 个');
+  lines.push('🔥 连续学习: ' + state.streak + ' 天');
+  lines.push('📈 今日新学: ' + state.todayNew + ' 个');
+  lines.push('');
+  lines.push('📅 本周学习: ' + weekTotal + ' 个');
+  weekDays.forEach(d => lines.push('  周' + d.day + ': ' + d.count + '个'));
+  lines.push('');
+  lines.push('📐 语法进度: ' + grammarMastered + '/' + grammarTotal);
+  lines.push('━━━━━━━━━━━━━━━━━━━━');
+  lines.push('💪 加油！坚持就是胜利！');
+  document.getElementById('reportText').value = lines.join('\n');
   document.getElementById('reportArea').style.display = 'block';
 }
 
