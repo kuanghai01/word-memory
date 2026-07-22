@@ -663,7 +663,10 @@ body {
       <div class="label">连续天数</div>
     </div>
   </div>
-  <div id="saveIndicator" style="text-align:center;font-size:11px;color:var(--text-light);padding:4px 0;display:none">
+  <div style="text-align:center;padding:6px 0">
+    <button id="btnSave" class="btn btn-outline" style="font-size:13px;padding:6px 16px">💾 保存进度</button>
+  </div>
+  <div id="saveIndicator" style="text-align:center;font-size:11px;color:var(--text-light);padding:2px 0;display:none">
     💾 上次保存: <span id="saveTime">--</span>
   </div>
 
@@ -3050,24 +3053,44 @@ function copyReport() {
   }
 }
 
+// 保存按钮
+document.getElementById('btnSave').addEventListener('click', function() {
+  saveState();
+  showToast('✅ 进度已保存');
+});
+
 // 发给家长
 document.getElementById('btnEmailReport').addEventListener('click', function() {
   var report = window.__lastReport || document.getElementById('reportText').value;
   var subject = '学习报告 - ' + new Date().toLocaleDateString('zh-CN');
   var body = '您好，以下是孩子的英语学习报告：\n\n' + report + '\n\n---\n自动生成自单词学习系统';
-  // 使用 mailto 链接
-  var mailto = 'mailto:kuanghai@angent.qq.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-  window.location.href = mailto;
-  showToast('已打开邮件客户端');
+  // 先复制到粘贴板
+  navigator.clipboard.writeText(body).then(function() {
+    showToast('✅ 报告已复制，请粘贴到邮件发送');
+    // 再尝试打开邮件客户端
+    var mailto = 'mailto:kuanghai@angent.qq.com?subject=' + encodeURIComponent(subject);
+    window.open(mailto, '_blank');
+  }).catch(function() {
+    // 降级：显示在弹窗里
+    document.getElementById('reportText').value = body;
+    showToast('请复制以上内容，发到 kuanghai@angent.qq.com');
+  });
 });
 
 // 短信发送
 document.getElementById('btnSmsReport').addEventListener('click', function() {
   var report = window.__lastReport || document.getElementById('reportText').value;
   var smsBody = '【学习报告】' + new Date().toLocaleDateString('zh-CN') + '\n' + report;
-  var smsUri = 'sms:13976828877?body=' + encodeURIComponent(smsBody);
-  window.location.href = smsUri;
-  showToast('已打开短信App');
+  // 先复制到粘贴板
+  navigator.clipboard.writeText(smsBody).then(function() {
+    showToast('✅ 已复制，请粘贴短信发送给 13976828877');
+    // 再尝试打开短信App
+    var smsUri = 'sms:13976828877';
+    window.open(smsUri, '_blank');
+  }).catch(function() {
+    document.getElementById('reportText').value = smsBody;
+    showToast('请复制以上内容，发到 13976828877');
+  });
 });
 
 // ============================================================
