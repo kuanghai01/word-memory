@@ -810,6 +810,7 @@ body {
       <div id="reportArea" style="display:none;margin-top:12px">
         <textarea id="reportText" readonly style="width:100%;height:200px;font-size:13px;border:1px solid var(--border);border-radius:8px;padding:10px;resize:none;font-family:inherit;background:#f8fafc"></textarea>
         <button class="btn btn-outline" id="btnCopyReport" style="width:100%;margin-top:8px;padding:10px 0;font-size:15px">📋 复制报告</button>
+        <button class="btn btn-primary" id="btnEmailReport" style="width:100%;margin-top:8px;padding:10px 0;font-size:15px">📧 发给家长</button>
       </div>
     </div>
   </div>
@@ -3029,6 +3030,7 @@ function generateReport() {
   lines.push('💪 加油！坚持就是胜利！');
   document.getElementById('reportText').value = lines.join('\n');
   document.getElementById('reportArea').style.display = 'block';
+  window.__lastReport = lines.join('\n');
 }
 
 function copyReport() {
@@ -3046,6 +3048,17 @@ function copyReport() {
     showToast('✅ 已复制，可发给家长');
   }
 }
+
+// 发给家长
+document.getElementById('btnEmailReport').addEventListener('click', function() {
+  var report = window.__lastReport || document.getElementById('reportText').value;
+  var subject = '学习报告 - ' + new Date().toLocaleDateString('zh-CN');
+  var body = '您好，以下是孩子的英语学习报告：\n\n' + report + '\n\n---\n自动生成自单词学习系统';
+  // 使用 mailto 链接
+  var mailto = 'mailto:kuanghai@angent.qq.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  window.location.href = mailto;
+  showToast('已打开邮件客户端');
+});
 
 // ============================================================
 // 初始化
