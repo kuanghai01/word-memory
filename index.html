@@ -663,6 +663,9 @@ body {
       <div class="label">连续天数</div>
     </div>
   </div>
+  <div id="saveIndicator" style="text-align:center;font-size:11px;color:var(--text-light);padding:4px 0;display:none">
+    💾 上次保存: <span id="saveTime">--</span>
+  </div>
 
   <div class="mode-selector">
     <div class="mode-btn active" data-mode="new">新词学习</div>
@@ -1579,6 +1582,12 @@ function loadState() {
 
 function saveState() {
   localStorage.setItem(ST_KEY, JSON.stringify(state));
+  // 更新保存时间显示
+  const el = document.getElementById('saveTime');
+  if (el) {
+    el.textContent = new Date().toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'});
+    document.getElementById('saveIndicator').style.display = 'block';
+  }
 }
 
 let state = loadState();
@@ -1589,6 +1598,7 @@ WORDS.forEach(w => {
     state.wordStates[w.word] = { status: 'new', correctCount: 0, wrongCount: 0, lastReview: null, nextReview: null };
   }
 });
+saveState();  // 确保初始状态被保存
 
 // 检查日期切换（只重置计数，不修改连续天数）
 function checkStreak() {
@@ -1599,6 +1609,11 @@ function checkStreak() {
   saveState();
 }
 checkStreak();
+
+// 页面关闭前自动保存
+window.addEventListener('beforeunload', () => saveState());
+// 每30秒自动保存
+setInterval(() => saveState(), 30000);
 
 // ============================================================
 // 工具函数
